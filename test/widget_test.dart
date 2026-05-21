@@ -2,7 +2,6 @@
 // It verifies that the app starts with the SetupScreen when no credentials exist.
 
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:ksdevs/main.dart';

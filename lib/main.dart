@@ -1279,7 +1279,7 @@ class _DateLectureScreenState extends State<DateLectureScreen> {
                     ),
                   const SizedBox(height: 20),
                   DropdownButtonFormField<String>(
-                    value: _selectedLecture,
+                    initialValue: _selectedLecture,
                     decoration: InputDecoration(
                       labelText: "Lecture",
                       prefixIcon: const Icon(Icons.class_),
