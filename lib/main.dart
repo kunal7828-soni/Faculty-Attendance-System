@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 // ─────────────────────────────────────────────────────────────────
@@ -77,32 +76,17 @@ class RootRouter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final box = Hive.box('appBox');
-
-    // First-time setup: Faculty PIN not configured yet
-    if (box.get('facultyPin') == null) {
-      return const SetupScreen();
-    }
-
-    // Session persisted — skip login
-    final String? role = box.get('sessionRole');
-    if (role == 'faculty') return const FacultyDashboard();
-    if (role == 'student') return const StudentDashboard();
-
-    // No active session — show login
-    return const LoginScreen();
+    return const FacultyDashboard();
   }
 }
+
+
+
 
 // ─────────────────────────────────────────────────────────────────
 //  GLOBAL BOX HELPERS
 // ─────────────────────────────────────────────────────────────────
 Box get _box        => Hive.box('appBox');
-String? get _facultyPin => _box.get('facultyPin');
-String? get _studentPin => _box.get('studentPin');
-
-void _setSession(String role) => _box.put('sessionRole', role);
-void _clearSession()          => _box.delete('sessionRole');
 
 // ── Attendance helpers ──────────────────────────────────────────
 void _saveAttendance(String date, String lecture, List<Student> students) {
@@ -187,24 +171,11 @@ class Student {
 class FacultyDashboard extends StatelessWidget {
   const FacultyDashboard({super.key});
 
-  void _logout(BuildContext context) {
-    _clearSession();
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Faculty Dashboard"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: "Logout",
-            onPressed: () => _logout(context),
-          ),
-        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
@@ -591,118 +562,6 @@ class _TGDatePickScreenState extends State<TGDatePickScreen> {
 }
 
 
-class StudentDashboard extends StatelessWidget {
-  const StudentDashboard({super.key});
-
-  void _logout(BuildContext context) {
-    _clearSession();
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Student Dashboard"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: "Logout",
-            onPressed: () => _logout(context),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          _dashCard(
-            context,
-            icon: Icons.people,
-            title: "Manage Students",
-            subtitle: "Add / edit student list",
-            color: AppTheme.primary,
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const ManageStudentsScreen(
-                        listKey: 'lectureStudents',
-                        title: 'Student List'))),
-          ),
-          const SizedBox(height: 16),
-          _dashCard(
-            context,
-            icon: Icons.fact_check,
-            title: "Attendance",
-            subtitle: "Take or view lecture attendance",
-            color: AppTheme.green,
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const DateLectureScreen(
-                        studentListKey: 'lectureStudents'))),
-          ),
-          const SizedBox(height: 16),
-          _dashCard(
-            context,
-            icon: Icons.layers,
-            title: "Sections",
-            subtitle: "Manage sections and their students",
-            color: Colors.indigo,
-            onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => const SectionsScreen(
-                        nsKey: 'studentSections',
-                        title: 'My Sections'))),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _dashCard(BuildContext context,
-      {required IconData icon,
-      required String title,
-      required String subtitle,
-      required Color color,
-      required VoidCallback onTap}) {
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                backgroundColor: color.withOpacity(0.15),
-                child: Icon(icon, color: color, size: 30),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: const TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 4),
-                    Text(subtitle,
-                        style: TextStyle(
-                            fontSize: 13, color: Colors.grey.shade600)),
-                  ],
-                ),
-              ),
-              const Icon(Icons.chevron_right),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────
 //  SECTIONS SCREEN  (add/delete/navigate sections)
