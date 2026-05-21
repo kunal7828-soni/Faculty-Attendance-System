@@ -1,6 +1,6 @@
 workflows:
   ios-workflow:
-    name: Build iOS IPA
+    name: iOS IPA Build
 
     max_build_duration: 60
 
@@ -12,9 +12,15 @@ workflows:
       - flutter clean
       - flutter pub get
       - flutter build ios --release --no-codesign
-      - mkdir -p build/ios/ipa
-      - cd build/ios/iphoneos
-      - zip -r ../ipa/Runner.ipa Runner.app
+
+      # Create Payload folder
+      - mkdir -p Payload
+
+      # Copy Runner.app into Payload
+      - cp -R build/ios/iphoneos/Runner.app Payload/
+
+      # Create real IPA
+      - zip -r Runner.ipa Payload
 
     artifacts:
-      - build/ios/ipa/*.ipa
+      - Runner.ipa
