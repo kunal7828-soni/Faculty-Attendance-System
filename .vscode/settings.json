@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/6. Software/Faculty Attendance/linux"
+    "cmake.sourceDirectory": "C:/6. Software/Faculty Attendance/linux",
+    "java.configuration.updateBuildConfiguration": "automatic"
 }
